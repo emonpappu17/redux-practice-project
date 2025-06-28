@@ -3,6 +3,6 @@ export interface ITask {
     title: string;
     description: string;
     dueDate: string;
-    idCompleted: boolean;
-    priority: "Low" | "Medium" | "High"; // Use union type to restrict values
+    isCompleted: boolean;
+    priority: "low" | "medium" | "high"; // Use union type to restrict values
 }
