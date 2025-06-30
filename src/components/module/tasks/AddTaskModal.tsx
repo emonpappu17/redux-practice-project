@@ -15,10 +15,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { addTask } from "@/redux/features/task/taskSlice";
-import { selectUsers } from "@/redux/features/user/userSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import type { ITask } from "@/types";
+import { useCreateTaskMutation } from "@/redux/api/baseApi";
+// import { addTask } from "@/redux/features/task/taskSlice";
+// import { selectUsers } from "@/redux/features/user/userSlice";
+// import { useAppDispatch, useAppSelector } from "@/redux/hook";
+// import type { ITask } from "@/types";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
@@ -27,21 +28,35 @@ import { useForm, type FieldValues, type SubmitHandler } from "react-hook-form"
 
 export function AddTaskModal() {
     const [open, setOpen] = useState(false);
-    const users = useAppSelector(selectUsers);
-
+    // const users = useAppSelector(selectUsers);
     const form = useForm();
 
-    const dispatch = useAppDispatch();
+    // const dispatch = useAppDispatch();
 
-    const onSubmit: SubmitHandler<FieldValues> = (data) => {
+    const [createTask, { data, isLoading, isError }] = useCreateTaskMutation();
+
+    console.log('Data', data);
+
+    const onSubmit: SubmitHandler<FieldValues> = async (data) => {
         // console.log(data);
-        dispatch(addTask(data as ITask));
+        // dispatch(addTask(data as ITask));
+        const taskData = {
+            ...data,
+            isCompleted: false,
+        }
+
+        const res = await createTask(taskData).unwrap();
+
+        console.log("Inside submit function", res);
+
         setOpen(false);
         form.reset();
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+            open={open} onOpenChange={setOpen}
+        >
             <DialogTrigger asChild>
                 <Button >Add Task</Button>
             </DialogTrigger>
@@ -98,7 +113,7 @@ export function AddTaskModal() {
                                 </FormItem>
                             )}
                         />
-                        <FormField
+                        {/* <FormField
                             control={form.control}
                             name="assignedTo"
                             render={({ field }) => (
@@ -121,7 +136,7 @@ export function AddTaskModal() {
                                     <FormMessage />
                                 </FormItem>
                             )}
-                        />
+                        /> */}
                         <FormField
                             control={form.control}
                             name="dueDate"
@@ -152,9 +167,7 @@ export function AddTaskModal() {
                                                 mode="single"
                                                 selected={field.value}
                                                 onSelect={field.onChange}
-                                                // disabled={(date) =>
-                                                //     date > new Date() || date < new Date("1900-01-01")
-                                                // }
+
                                                 captionLayout="dropdown"
                                             />
                                         </PopoverContent>
@@ -173,5 +186,6 @@ export function AddTaskModal() {
                 </Form>
             </DialogContent>
         </Dialog >
+
     )
 }
